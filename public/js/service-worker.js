@@ -8,6 +8,8 @@ const errorUrl = '/static/html/error.html';
 
 const vm = this;
 
+const version = '1';
+
 vm.addEventListener('install', function(event) {
 
     // Offline
@@ -50,4 +52,30 @@ vm.addEventListener('fetch', function(event) {
             })
         );
     }
+});
+
+vm.addEventListener('message', (event) => {
+  if (!event.data) return;
+  if (event.data.type === 'VERSION') {
+    self.clients.matchAll({ includeUncontrolled: true, type: 'window' }).then((clients) => {
+      if (clients && clients.length) {
+        for (let i = 0; i < clients.length; i++) {
+          clients[i].postMessage({
+            version,
+            type: 'VERSION',
+          });
+        }
+      }
+    });
+  }
+
+  if (event.data.type === 'SKIP_WAITING') {
+    console.log('Skip waiting');
+    self.skipWaiting();
+  }
+
+  if (event.data.type === 'CLIENTS_CLAIM') {
+    console.log('Clients claim');
+    self.clients.claim();
+  }
 });
