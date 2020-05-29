@@ -1,14 +1,12 @@
-var cacheVersion = 1;
-var currentCache = {
-  offline: 'offline-cache' + cacheVersion
+const version = '$version';
+const currentCache = {
+  offline: 'offline-cache' + version
 };
 
 const offlineUrl = '/static/html/offline.html';
 const errorUrl = '/static/html/error.html';
 
 const vm = this;
-
-const version = '$version';
 
 vm.addEventListener('install', function(event) {
 
@@ -25,7 +23,6 @@ vm.addEventListener('install', function(event) {
 });
 
 vm.addEventListener('fetch', function(event) {
-
     if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html'))) {
         event.respondWith(
             fetch(event.request)
@@ -44,13 +41,22 @@ vm.addEventListener('fetch', function(event) {
                 return caches.match(offlineUrl);
             })
         );
-    }
-    else{
-        event.respondWith(caches.match(event.request)
-                        .then(function (response) {
-                        return response || fetch(event.request);
-            })
-        );
+    } else {
+
+      event.respondWith(caches.match(event.request)
+        .then(function (response) {
+          // Used for getting the version of the service worker that is
+          // currently controlling the page
+          const url = new URL(event.request.url);
+          if (url.origin == location.origin && url.pathname == '/cache-version') {
+            return new Response(JSON.stringify({ version }), {
+              headers: {'Content-Type': 'application/json'}
+            });
+          }
+
+          return response || fetch(event.request);
+        })
+      );
     }
 });
 
