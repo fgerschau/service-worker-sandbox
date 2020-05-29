@@ -8,7 +8,7 @@ const errorUrl = '/static/html/error.html';
 
 const vm = this;
 
-const version = '1';
+const version = '$version';
 
 vm.addEventListener('install', function(event) {
 

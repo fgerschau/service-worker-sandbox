@@ -18,7 +18,7 @@
 
     const update = () => {
       navigator.serviceWorker.ready.then((registration) => {
-        if (registration.active) registration.active.update();
+        registration.update();
       });
     };
 
